@@ -26,4 +26,4 @@ lancer le serveur:
 node server.js
 ```
 
-ouvrir un navigateur à l'adresse http://localhost: ??
+ouvrir un navigateur à l'adresse http://localhost:8888
