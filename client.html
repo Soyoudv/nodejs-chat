@@ -23,11 +23,11 @@
         var name = document.getElementById("name_box").value;
         document.getElementById("join_status").innerText = "Demande à rejoindre en tant que " + name;
         
-        if(joined){
+        if(joined){ // on regarde si on est déjà connecté
             console.log("Déjà rejoint");
             document.getElementById("join_status").innerText = "Déjà rejoint en tant que " + registered_name;
-        }else{
-            socket.emit("join", name);
+        }else{ // sinon on envoie la demande de connexion
+            socket.emit("identification", name);
         }
     }
 

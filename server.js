@@ -23,23 +23,23 @@ function update_all_user_list() {
 
 io.on('connection', (socket) => {
 
-  console.log('Un utilisateur est connecté');
+  console.log('Un utilisateur est connecté au serveur'); // log
   socket.emit('update_user_list', user_list, user_needed, user_max);
 
   socket.on('identification', (new_user) => {
 
-    console.log("essai de connexion avec le nom " + new_user);
+    console.log("essai d'indentification avec le nom " + new_user); // log
     
     if (user_list.includes(new_user)) {
 
-      console.log("mais le nom est déjà pris");
+      console.log("le nom est déjà pris"); // log
       socket.emit('join_response', new_user, false, 'Nom déjà pris');
 
     }else{
 
       user_list.push(new_user);
 
-      console.log("nom ajouté à la liste");
+      console.log("nom disponible, identification réussie"); // log
       socket.emit('join_response', new_user, true, 'Nom accepté');
 
       update_all_user_list();
