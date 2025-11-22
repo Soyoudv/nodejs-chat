@@ -21,12 +21,17 @@
 
     function join(){
         var name = document.getElementById("name_box").value;
+        if(name == ""){
+            document.getElementById("join_status").innerText = "Le nom ne peut pas être vide.";
+            return;
+        }
         document.getElementById("join_status").innerText = "Demande à rejoindre en tant que " + name;
         
         if(joined){ // on regarde si on est déjà connecté
             console.log("Déjà rejoint");
             document.getElementById("join_status").innerText = "Déjà rejoint en tant que " + registered_name;
         }else{ // sinon on envoie la demande de connexion
+            console.log("Envoi de la demande d'identification");
             socket.emit("identification", name);
         }
     }
@@ -35,17 +40,21 @@
         if(success){
             joined = true;
             registered_name = name;
-            document.getElementById("join_status").innerText = "Rejoint en tant que " + registered_name;
+            document.getElementById("join_status").innerText = message + ": " + registered_name;
         }else{
             document.getElementById("join_status").innerText = "Échec du join: " + message;
         }
     });
     
-    socket.on("update_user_list", (user_list, user_count, user_needed, user_max) => {
-
+    socket.on('update_user_list', (user_list, user_needed, user_max) => {
+            document.getElementById("names").innerHTML = ""; // vide la boîte
+            for (i in user_list.length) {
+                document.getElementById("names").innerHTML += "<li> ul " + user_list[i] + "</li>";
+            } // Remplit la boîte
     });
     
 </script>
+
 <style type="text/css">
     .main {
         border-color: black;
