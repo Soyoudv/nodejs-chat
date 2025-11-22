@@ -10,6 +10,10 @@
 <script>
     var socket = io();
 
+    var registered_name = "";
+    var joined = false;
+
+
     onload = function () {
         document.getElementById("name_box").value = "";
         document.getElementById("message_box").value = "";
@@ -17,10 +21,29 @@
 
     function join(){
         var name = document.getElementById("name_box").value;
-        socket.emit("join", name);
+        document.getElementById("join_status").innerText = "Demande à rejoindre en tant que " + name;
+        
+        if(joined){
+            console.log("Déjà rejoint");
+            document.getElementById("join_status").innerText = "Déjà rejoint en tant que " + registered_name;
+        }else{
+            socket.emit("join", name);
+        }
     }
+
+    socket.on("join_response", (name, success, message) => {
+        if(success){
+            joined = true;
+            registered_name = name;
+            document.getElementById("join_status").innerText = "Rejoint en tant que " + registered_name;
+        }else{
+            document.getElementById("join_status").innerText = "Échec du join: " + message;
+        }
+    });
     
-    
+    socket.on("update_user_list", (user_list, user_count, user_needed, user_max) => {
+
+    });
     
 </script>
 <style type="text/css">
