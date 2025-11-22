@@ -48,33 +48,12 @@
     
     socket.on('update_user_list', (user_list, user_needed, user_max) => {
             document.getElementById("names").innerHTML = ""; // vide la boîte
-            for (i in user_list.length) {
+            for (let i = 0; i < user_list.length; i++) {
                 document.getElementById("names").innerHTML += "<li> ul " + user_list[i] + "</li>";
             } // Remplit la boîte
-    });
+        });
     
 </script>
-
-<style type="text/css">
-    .main {
-        border-color: black;
-        border-style: solid;
-        border-width: 2px;
-    }
-
-    .chat {
-        border-color: black;
-        border-style: solid;
-        border-width: 2px;
-    }
-
-    .game {
-        border-color: black;
-        border-style: solid;
-        border-width: 2px;
-    }
-</style>
-
 <body>
     <div class="main">
 
