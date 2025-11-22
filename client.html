@@ -18,28 +18,31 @@
     
 </script>
 <body>
-    <div class="main-card">
+    <div class="main">
+
         <input id="name_box" type="text" value=""></input>
         <button onclick="rejoindre()">Rejoindre</button>
-        <i>
-            <p id="join_status"></p>
-        </i>
+        <p id="join_status"></p>
+
         <p>Liste des utilisateurs:</p>
         <ul id="names"></ul>
         <button onclick="quitter()">Quitter</button>
-
-        <i>
-            <p id="game_status"></p>
-        </i>
+        
 
     </div>
-    <div class="messagerie">
+
+    <div class="chat">
+
         <input id="message_box" type="text" value=""></input>
         <button onclick="envoyer()">Envoyer</button>
         <ul id="messages"></ul>
-        <p id="message_status"></p>
+        <p id="chat_status"></p>
         
         <div id="tablier" style="float:left;"></div>
+
+    </div>
+    <div class="game">
+        <p id="game_status"></p>
     </div>
 </body>
 </html>
