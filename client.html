@@ -17,32 +17,52 @@
 
     
 </script>
+<style type="text/css">
+    .main {
+        border-color: black;
+        border-style: solid;
+        border-width: 2px;
+    }
+
+    .chat {
+        border-color: black;
+        border-style: solid;
+        border-width: 2px;
+    }
+
+    .game {
+        border-color: black;
+        border-style: solid;
+        border-width: 2px;
+    }
+</style>
+
 <body>
     <div class="main">
 
         <input id="name_box" type="text" value=""></input>
-        <button onclick="rejoindre()">Rejoindre</button>
+        <button onclick="join()">Join</button>
         <p id="join_status"></p>
 
-        <p>Liste des utilisateurs:</p>
+        <p>User List:</p>
         <ul id="names"></ul>
-        <button onclick="quitter()">Quitter</button>
-        
+        <button onclick="exit()">Exit</button>
 
     </div>
 
     <div class="chat">
 
         <input id="message_box" type="text" value=""></input>
-        <button onclick="envoyer()">Envoyer</button>
+        <button onclick="snd_message()">Send</button>
         <ul id="messages"></ul>
         <p id="chat_status"></p>
-        
-        <div id="tablier" style="float:left;"></div>
 
     </div>
+
     <div class="game">
+
         <p id="game_status"></p>
+
     </div>
 </body>
 </html>
