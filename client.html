@@ -5,7 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
-<body>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+    var socket = io();
+
+    onload = function () {
+        document.getElementById("name_box").value = "";
+        document.getElementById("message_box").value = "";
+    }
+
     
+</script>
+<body>
+    <div class="main-card">
+        <input id="name_box" type="text" value=""></input>
+        <button onclick="rejoindre()">Rejoindre</button>
+        <i>
+            <p id="join_status"></p>
+        </i>
+        <p>Liste des utilisateurs:</p>
+        <ul id="names"></ul>
+        <button onclick="quitter()">Quitter</button>
+
+        <i>
+            <p id="game_status"></p>
+        </i>
+
+    </div>
+    <div class="messagerie">
+        <input id="message_box" type="text" value=""></input>
+        <button onclick="envoyer()">Envoyer</button>
+        <ul id="messages"></ul>
+        <p id="message_status"></p>
+        
+        <div id="tablier" style="float:left;"></div>
+    </div>
 </body>
 </html>
