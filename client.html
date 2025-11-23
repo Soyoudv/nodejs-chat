@@ -10,9 +10,50 @@
 
     <!-- ------------------------------ CSS ------------------------------ -->
 <style>
+
     body {
-        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+        background-color: darkslategrey;
     }
+
+    .main {
+        position: absolute;
+        top: 10%;
+        left: 5%;
+        width: 25%;
+        height: 80%;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        overflow-y: auto;
+    }
+
+    .chat {
+        position: absolute;
+        top: 10%;
+        right: 5%;
+        width: 25%;
+        height: 80%;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        overflow-y: auto;
+    }
+
+    .game {
+        position: absolute;
+        bottom: 5%;
+        left: 35%;
+        width: 30%;
+        height: 10%;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        text-align: center;
+    }
+
 </style>
     <!-- ------------------------------ JAVASCRIPT ------------------------------ -->
 <script>
@@ -21,6 +62,7 @@
     var registered_name = "";
     var joined = false;
     var my_id = -1;
+
 
     function display_for(where, message, n){
         document.getElementById(where).innerText = message;
@@ -38,10 +80,12 @@
         socket.emit('request_id');
     }
 
+
     socket.on('receive_id', (id) => {
         my_id = id;
         console.log("Id given to newly connected user: " + my_id); // log
     });
+
 
     function join(){
         var name = document.getElementById("name_box").value;
@@ -56,6 +100,7 @@
         socket.emit("identification", name);
     }
 
+
     socket.on("join_response", (name, success, message) => {
         if(success){
             joined = true;
@@ -69,6 +114,7 @@
         }
     });
 
+
     socket.on('exit_response', (name, success, message) => {
         if (success){
             display_for("join_status", "User " + name + " has exited", 3);
@@ -78,6 +124,7 @@
             console.log("Exit failed for " + name); // log
         }
     });
+
     
     socket.on('update_user_list', (user_list, user_needed, user_max) => {
 
@@ -97,6 +144,7 @@
             }
     });
 
+
     function exit(){
         if(joined){
             document.getElementById("profile_status").innerText = "";
@@ -109,6 +157,33 @@
             display_for("join_status", "You are not connected, you cant exit", 3);
         }
     }
+
+    function send_message(){
+        var message = document.getElementById("message_box").value;
+        document.getElementById("message_box").value = "";
+
+        if(!joined){
+
+            display_for("chat_status", "You must be connected to send messages", 3);
+
+        }
+
+        else if(message == ""){
+
+            display_for("chat_status", "You can't send empty messages", 3);
+
+        } else {
+
+            console.log("Sending message: " + message); // log
+            socket.emit("new_message", my_id, message);
+        }
+    }
+
+    socket.on('receive_message', (name, message) =>{
+        console.log("Received message from " + name + ": " + message); // log
+        document.getElementById("messages").innerHTML += "<li><b>" + name + ":</b> " + message + "</li>";
+    })
+
     
 </script>
 
@@ -121,18 +196,18 @@
 
         <input id="name_box" type="text" value=""></input>
         <button onclick="join()">Join</button>
+        <button onclick="exit()">Exit</button>
         <p id="join_status"></p>
 
         <p>User List:</p>
         <ul id="names"></ul>
-        <button onclick="exit()">Exit</button>
 
     </div>
 
     <div class="chat">
 
         <input id="message_box" type="text" value=""></input>
-        <button onclick="snd_message()">Send</button>
+        <button onclick="send_message()">Send</button>
         <ul id="messages"></ul> 
         <p id="chat_status"></p>
 

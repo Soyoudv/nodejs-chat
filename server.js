@@ -1,6 +1,7 @@
 const { on, once } = require('events'); // Importation des fonctions on et once du module events
 const express = require('express'); // Importation du framework Express
 const http = require('http'); // Importation du module HTTP
+const { exit } = require('process');
 const socketIo = require('socket.io'); // Importation de Socket.IO
 
 const app = express(); // Création de l'application Express
@@ -23,12 +24,20 @@ function update_all_user_list() {
   io.emit('update_user_list', user_list_array, user_needed, user_max); // envoi de la liste
 }
 
+function exit_user(id, socket) {
+      var name = user_list_array[id]; // on recup le nom pour le log
+      user_list.delete(id); // on enleve l'utilisateur de la liste
+      user_list_array = user_list_array.filter(user => user !== id); // remove the user from the array
+      console.log("User " + id + " has logged out from " + name); // log
+      update_all_user_list(); // on renvoie à tout le monde
+      socket.emit('exit_response', id, true, 'User exited successfully');
+}
 
 io.on('connection', (socket) => {
 
 
   console.log("A user has connected to the server (" + socket.id + ")"); // log
-  socket.emit('update_user_list', user_list, user_needed, user_max);
+  socket.emit('update_user_list', user_list_array, user_needed, user_max);
   console.log("Sending him user list"); // log
 
 
@@ -67,29 +76,38 @@ io.on('connection', (socket) => {
         return;
 
       } else {
-
-      var name = user_list_array[id]; // on recup le nom pour le log
-      user_list.delete(id); // on enleve l'utilisateur de la liste
-      user_list_array = user_list_array.filter(user => user !== id); // remove the user from the array
-      console.log("User " + id + " has logged out from " + name); // log
-      update_all_user_list(); // on renvoie à tout le monde
-      socket.emit('exit_response', id, true, 'User exited successfully');
-
+        exit_user(id, socket);
       }
 
     });
 
 
+    socket.on('request_id',() => { // envoi de l'id à l'utilisateur
+      socket.emit('receive_id', socket.id);
+    });
+  
+
+    socket.on('ask_update_user_list', () => { // envoi de la liste des utilisateurs à la demande
+      console.log("User " + socket.id + " requested user list update"); // log
+      socket.emit('update_user_list', user_list_array, user_needed, user_max);
+    });
+
+
+    socket.on('send_message', (id, message) => { // when a user sends a message, broadcast it to all users
+      console.log("User " + socket.id + " sent message: " + message);
+      io.emit('receive_message', user_list[id], message);
+    });
+
+
+    socket.on('disconnect', () => { // when a user disconnects, remove them from the user list and tell to everyone
+      exit_user(socket.id, socket);
+    });
+
+
   });
 
-  socket.on('request_id',() => { // envoi de l'id à l'utilisateur
-    socket.emit('receive_id', socket.id);
-  });
 
-  socket.on('ask_update_user_list', () => { // envoi de la liste des utilisateurs à la demande
-    console.log("User " + socket.id + " requested user list update"); // log
-    socket.emit('update_user_list', user_list_array, user_needed, user_max);
-  });
+  
 
   
 });
