@@ -17,40 +17,47 @@ let user_max = 4; // nombre maximum d'utilisateurs
 let game_going = false; // indique si une partie est en cours
 
 function update_all_user_list() {
-  console.log("envoi de la nouvelle liste des utilisateurs à tous les clients");
+  console.log("Sending user list update to all clients"); // log
   io.emit('update_user_list', user_list, user_needed, user_max);
 }
 
 io.on('connection', (socket) => {
 
-  console.log('Un utilisateur est connecté au serveur'); // log
+  console.log('A user has connected to the server'); // log
   socket.emit('update_user_list', user_list, user_needed, user_max);
+  console.log('Sending him user list'); // log
 
   socket.on('identification', (new_user) => {
 
-    console.log("essai d'indentification avec le nom " + new_user); // log
+    console.log("Attempting identification with name " + new_user); // log
     
     if (user_list.includes(new_user)) {
 
-      console.log("le nom est déjà pris"); // log
-      socket.emit('join_response', new_user, false, 'Nom déjà pris');
+      console.log("The name is already taken"); // log
+      socket.emit('join_response', new_user, false, 'Name already taken');
 
     }else{
 
       user_list.push(new_user);
 
-      console.log("nom disponible, identification réussie"); // log
-      socket.emit('join_response', new_user, true, 'Nom accepté');
+      console.log("Name available, identification successful"); // log
+      socket.emit('join_response', new_user, true, 'Name accepted');
 
       update_all_user_list();
 
     }
 
+    socket.on('exit', (name) => { // when a user exits, remove them from the user list and tell to everyone
+      user_list = user_list.filter(user => user !== name);
+      console.log("User " + name + " has exited"); // log
+      update_all_user_list();
+    });
+
   });
   
 });
 
-server.listen(8888, () => { // Démarrage du serveur sur le port 8888
-  console.log('Serveur lancé sur http://localhost:8888');
+server.listen(8888, () => { // Starting the server on port 8888
+  console.log("Server running at http://localhost:8888\n--------------------------------" );
 });
 
