@@ -7,17 +7,26 @@
 </head>
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- ------------------------------ CSS ------------------------------ -->
+<style>
+    body {
+        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+    }
+</style>
+    <!-- ------------------------------ JAVASCRIPT ------------------------------ -->
 <script>
     var socket = io();
 
     var registered_name = "";
     var joined = false;
+    var my_id = -1;
 
-    function display_for(id, message, n){
-        document.getElementById(id).innerText = message;
+    function display_for(where, message, n){
+        document.getElementById(where).innerText = message;
 
         setTimeout(function() { // Efface le message après n secondes
-            document.getElementById(id).innerText = "";
+            document.getElementById(where).innerText = "";
         }, 1000*n);
     }
 
@@ -26,7 +35,13 @@
         document.getElementById("name_box").value = "";
         document.getElementById("message_box").value = "";
         // on vide les boites à l'entrée d'une personne dans le site
+        socket.emit('request_id');
     }
+
+    socket.on('receive_id', (id) => {
+        my_id = id;
+        console.log("Id given to newly connected user: " + my_id); // log
+    });
 
     function join(){
         var name = document.getElementById("name_box").value;
@@ -80,6 +95,8 @@
     }
     
 </script>
+
+    <!-- ------------------------------ HTML ------------------------------ -->
 <body>
     <div class="profile">
         <p id="profile_status"></p>

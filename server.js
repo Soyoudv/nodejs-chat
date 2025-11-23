@@ -11,34 +11,42 @@ app.get('/', (req, res) => { // Envoie au client le fichier client.html
     res.sendFile(__dirname + '/client.html');
 });
 
-let user_list = []; // liste des utilisateurs connectés
-let user_needed = 2; // nombre d'utilisateurs nécessaires pour démarrer la partie
-let user_max = 4; // nombre maximum d'utilisateurs
-let game_going = false; // indique si une partie est en cours
+const user_needed = 2; // nombre d'utilisateurs nécessaires pour démarrer la partie
+const user_max = 4; // nombre maximum d'utilisateurs
+const game_going = false; // indique si une partie est en cours
+
+const user_list = new Map(); // dictionnaire pour les joueurs et leurs id
+
 
 function update_all_user_list() {
   console.log("Sending user list update to all clients"); // log
-  io.emit('update_user_list', user_list, user_needed, user_max);
+  io.emit('update_user_list', user_list, user_needed, user_max); // envoi de la liste
 }
+
 
 io.on('connection', (socket) => {
 
-  console.log('A user has connected to the server'); // log
+
+  console.log("A user has connected to the server (" + socket.id + ")"); // log
   socket.emit('update_user_list', user_list, user_needed, user_max);
-  console.log('Sending him user list'); // log
+  console.log("Sending him user list"); // log
+
 
   socket.on('identification', (new_user) => {
 
+
     console.log("Attempting identification with name " + new_user); // log
+
     
-    if (user_list.includes(new_user)) {
+    if (user_list.has(new_user)) { // if the name is already taken
 
       console.log("The name is already taken"); // log
       socket.emit('join_response', new_user, false, 'Name already taken');
 
     }else{
 
-      user_list.push(new_user);
+      user_list.set(new_user, socket.id);
+      console.log(socket.id); // log
 
       console.log("Name available, identification successful"); // log
       socket.emit('join_response', new_user, true, 'Name accepted');
@@ -47,13 +55,21 @@ io.on('connection', (socket) => {
 
     }
 
-    socket.on('exit', (name) => { // when a user exits, remove them from the user list and tell to everyone
-      user_list = user_list.filter(user => user !== name);
-      console.log("User " + name + " has exited"); // log
-      update_all_user_list();
+
+    socket.on('exit', (id) => { // when a user exits, remove them from the user list and tell to everyone
+      var name = user_list[id]; // on recup le nom pour le log
+      user_list.delete(id); // on enleve l'utilisateur de la liste
+      console.log("User " + id + " has logged out from " + name); // log
+      update_all_user_list(); // on renvoie à tout le monde
     });
 
+
   });
+
+  socket.on('request_id',() => { // envoi de l'id à l'utilisateur
+    socket.emit('receive_id', socket.id);
+  });
+
   
 });
 
