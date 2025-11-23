@@ -175,7 +175,7 @@
         } else {
 
             console.log("Sending message: " + message); // log
-            socket.emit("new_message", my_id, message);
+            socket.emit("send_message", my_id, message);
         }
     }
 
