@@ -52,13 +52,8 @@
             return;
         }
         
-        if(joined){ // on regarde si on est déjà connecté
-            console.log("Already joined as " + registered_name); // log
-            display_for("join_status", "Already joined as " + registered_name, 3);
-        }else{ // sinon on envoie la demande de connexion
-            console.log("Sending join request as " + name);
-            socket.emit("identification", name);
-        }
+        console.log("Sending join request as " + name);
+        socket.emit("identification", name);
     }
 
     socket.on("join_response", (name, success, message) => {
@@ -68,23 +63,44 @@
             display_for("join_status", message + ": " + registered_name, 3);
             
             document.getElementById("profile_status").innerHTML = "(Logged in as " + registered_name + ")";
-
+            console.log("Join successful as " + registered_name); // log
         }else{
             display_for("join_status", "Join failed: " + message, 3);
         }
     });
+
+    socket.on('exit_response', (name, success, message) => {
+        if (success){
+            display_for("join_status", "User " + name + " has exited", 3);
+            console.log("Exit successful for " + name); // log
+        }else{
+            display_for("join_status", "Exit failed: " + message, 3);
+            console.log("Exit failed for " + name); // log
+        }
+    });
     
     socket.on('update_user_list', (user_list, user_needed, user_max) => {
+
             document.getElementById("names").innerHTML = ""; // vide la boîte
+
+            // on affiche tous les éléments de la hashmap en la parcourant en tant que un tableau
             for (let i = 0; i < user_list.length; i++) {
                 document.getElementById("names").innerHTML += "<li> " + user_list[i] + "</li>";
-            } // Remplit la boîte
+            }
+
+            if (user_list.length >= 1){
+                document.getElementById("game_status").innerHTML = user_list.length + " user connected. (" + user_needed + " needed to start, max " + user_max + ")";
+                return;
+            }else{
+                document.getElementById("game_status").innerHTML = "no users connected. (" + user_needed + " needed to start, max " + user_max + ")";
+                return;
+            }
     });
 
     function exit(){
         if(joined){
             document.getElementById("profile_status").innerText = "";
-            console.log("Sending exit request as " + registered_name); // log
+            console.log(my_id + "Sending exit request as " + registered_name); // log
             socket.emit("exit", registered_name);
             
             joined = false;
