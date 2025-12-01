@@ -17,6 +17,11 @@
         background-color: black;
     }
 
+    .id {
+        opacity: 0.25;
+        font-size: 0.8em;
+    }
+
     /*
     body {
         background-color: darkslategrey;
@@ -140,7 +145,7 @@
 
             // on affiche tous les éléments de la hashmap en la parcourant en tant que un tableau
             for (let i = 0; i < user_list.length; i++) {
-                document.getElementById("names").innerHTML += "<li> " + user_list[i] + "#" + userid_list[i] + "</li>";
+                document.getElementById("names").innerHTML += "<li><b>" + user_list[i] + "</b><b class='id'>#" + userid_list[i] + "</b></li>";
             }
 
             if (user_list.length >= 1){
@@ -189,7 +194,7 @@
 
     socket.on('receive_message', (id, name, message) =>{
         console.log("Received message from " + name + ": " + message); // log
-        document.getElementById("messages").innerHTML += "<li><b>" + name + "</b><i>" + id + "</i>: " + message + "</li>";
+        document.getElementById("messages").innerHTML += "<li><b>" + name + "</b><b class='id'>#" + id + "</b>: " + message + "</li>";
     })
 
     

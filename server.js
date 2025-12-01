@@ -94,7 +94,7 @@ io.on('connection', (socket) => {
 
 
   socket.on('send_message', (id, message) => { // when a user sends a message, broadcast it to all users
-    var name = user_list[user_list.indexOf(id)];
+    var name = user_list[userid_list.indexOf(id)];
     console.log("User " + socket.id + "(" + name + ") sent message: " + message); // log
     io.emit('receive_message', id, name, message);
   });
