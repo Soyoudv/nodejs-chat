@@ -69,7 +69,7 @@
 
     var registered_name = "";
     var joined = false;
-    var my_id = -1;
+    var my_id = "";
 
 
     function display_for(where, message, n){
@@ -157,7 +157,7 @@
         if(joined){
             document.getElementById("profile_status").innerText = "";
             console.log(my_id + "Sending exit request as " + registered_name); // log
-            socket.emit("exit", my_id);
+            socket.emit("exit");
             
             joined = false;
             registered_name = "";

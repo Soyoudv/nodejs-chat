@@ -20,17 +20,17 @@ var user_list = []; // tableau des noms des joueurs connectés
 var userid_list = []; // tableau des ids des joueurs connectés
 
 function update_all_user_list() {
-  console.log("Sending user list update to all clients"); // log
+  console.log("Sending user list update to all clients " + user_list); // log
   io.emit('update_user_list', user_list, userid_list, user_needed, user_max); // envoi de la liste
 }
 
-function exit_user(userid, socket) {
-      var name = user_list[userid_list.indexOf(userid)]; // on recup le nom pour le log
-      user_list = user_list.filter(user => user !== name); // remove the user from the array
-      userid_list = userid_list.filter(id => id !== userid); // remove the id from the array
-      console.log("User " + userid + " has logged out from " + name); // log
-      update_all_user_list(); // on renvoie à tout le monde
-      socket.emit('exit_response', name, true, 'User exited successfully');
+function exit_user(socket) {
+  var name = user_list[userid_list.indexOf(socket.id)]; // on recup le nom pour le log
+  user_list = user_list.filter(user => user !== name); // remove the user from the array
+  userid_list = userid_list.filter(id => id !== socket.id); // remove the id from the array
+  console.log("User " + socket.id + " has logged out from " + name); // log
+  update_all_user_list(); // on renvoie à tout le monde
+  socket.emit('exit_response', name, true, 'User exited successfully');
 }
 
 io.on('connection', (socket) => {
@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
       console.log("The name is already taken"); // log
       socket.emit('join_response', new_user, false, 'Name already taken');
 
-    } else if (user_list[new_user] != null) { // if the user is already logged in
+    } else if (userid_list.includes(socket.id)) { // if the user is already logged in
 
       socket.emit('join_response', new_user, false, 'Already logged in');
 
@@ -66,46 +66,42 @@ io.on('connection', (socket) => {
       update_all_user_list();
 
     }
+  });
+
+  socket.on('exit', () => { // when a user exits, remove them from the user list and tell to everyone
+
+    if (!userid_list.includes(socket.id)) {
+        
+      socket.emit('exit_response', socket.id, false, 'User not found');
+      return;
+
+    } else {
+      exit_user(socket);
+    }
+
+  });
 
 
-    socket.on('exit', (id) => { // when a user exits, remove them from the user list and tell to everyone
-
-      if (!userid_list.includes(id)) {
-
-        socket.emit('exit_response', id, false, 'User not found');
-        return;
-
-      } else {
-        exit_user(id, socket);
-      }
-
-    });
-
-
-    socket.on('request_id',() => { // envoi de l'id à l'utilisateur
-      socket.emit('receive_id', socket.id);
-    });
+  socket.on('request_id',() => { // envoi de l'id à l'utilisateur
+    socket.emit('receive_id', socket.id);
+  });
   
 
-    socket.on('ask_update_user_list', () => { // envoi de la liste des utilisateurs à la demande
-      console.log("User " + socket.id + " requested user list update"); // log
-      socket.emit('update_user_list', user_list, userid_list, user_needed, user_max);
-    });
+  socket.on('ask_update_user_list', () => { // envoi de la liste des utilisateurs à la demande
+    console.log("User " + socket.id + " requested user list update"); // log
+    socket.emit('update_user_list', user_list, userid_list, user_needed, user_max);
+  });
 
 
-    socket.on('send_message', (id, message) => { // when a user sends a message, broadcast it to all users
-      var name = user_list[user_list.indexOf(id)];
-      console.log("User " + socket.id + "(" + name + ") sent message: " + message);
-      console.log(user_list)
-      io.emit('receive_message', id, name, message);
-    });
+  socket.on('send_message', (id, message) => { // when a user sends a message, broadcast it to all users
+    var name = user_list[user_list.indexOf(id)];
+    console.log("User " + socket.id + "(" + name + ") sent message: " + message); // log
+    io.emit('receive_message', id, name, message);
+  });
 
 
-    socket.on('disconnect', () => { // when a user disconnects, remove them from the user list and tell to everyone
-      exit_user(socket.id, socket);
-    });
-
-
+  socket.on('disconnect', () => { // when a user disconnects, remove them from the user list and tell to everyone
+    exit_user(socket);
   });
 
 
