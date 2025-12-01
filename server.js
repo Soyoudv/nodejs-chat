@@ -16,28 +16,28 @@ const user_needed = 2; // nombre d'utilisateurs nécessaires pour démarrer la p
 const user_max = 4; // nombre maximum d'utilisateurs
 const game_going = false; // indique si une partie est en cours
 
-var user_list = new Map(); // dictionnaire pour les joueurs et leurs id
-var user_list_array = []; // tableau des noms des joueurs connectés
+var user_list = []; // tableau des noms des joueurs connectés
+var userid_list = []; // tableau des ids des joueurs connectés
 
 function update_all_user_list() {
   console.log("Sending user list update to all clients"); // log
-  io.emit('update_user_list', user_list_array, user_needed, user_max); // envoi de la liste
+  io.emit('update_user_list', user_list, userid_list, user_needed, user_max); // envoi de la liste
 }
 
-function exit_user(id, socket) {
-      var name = user_list_array[id]; // on recup le nom pour le log
-      user_list.delete(id); // on enleve l'utilisateur de la liste
-      user_list_array = user_list_array.filter(user => user !== id); // remove the user from the array
-      console.log("User " + id + " has logged out from " + name); // log
+function exit_user(userid, socket) {
+      var name = user_list[userid_list.indexOf(userid)]; // on recup le nom pour le log
+      user_list = user_list.filter(user => user !== name); // remove the user from the array
+      userid_list = userid_list.filter(id => id !== userid); // remove the id from the array
+      console.log("User " + userid + " has logged out from " + name); // log
       update_all_user_list(); // on renvoie à tout le monde
-      socket.emit('exit_response', id, true, 'User exited successfully');
+      socket.emit('exit_response', name, true, 'User exited successfully');
 }
 
 io.on('connection', (socket) => {
 
 
   console.log("A user has connected to the server (" + socket.id + ")"); // log
-  socket.emit('update_user_list', user_list_array, user_needed, user_max);
+  socket.emit('update_user_list', user_list, userid_list, user_needed, user_max);
   console.log("Sending him user list"); // log
 
 
@@ -46,7 +46,7 @@ io.on('connection', (socket) => {
 
     console.log("Attempting identification with name " + new_user); // log
 
-    if (user_list.has(new_user)) { // if the name is already taken
+    if (user_list.includes(new_user)) { // if the name is already taken
 
       console.log("The name is already taken"); // log
       socket.emit('join_response', new_user, false, 'Name already taken');
@@ -57,8 +57,8 @@ io.on('connection', (socket) => {
 
     }else{
 
-      user_list.set(new_user, socket.id);
-      user_list_array.push(new_user);
+      user_list.push(new_user); // ajoute le new_user à la liste
+      userid_list.push(socket.id); // ajoute l'id à la liste
 
       console.log("Name available, identification successful"); // log
       socket.emit('join_response', new_user, true, 'Name accepted');
@@ -69,8 +69,8 @@ io.on('connection', (socket) => {
 
 
     socket.on('exit', (id) => { // when a user exits, remove them from the user list and tell to everyone
-      
-      if (!user_list.has(id)) {
+
+      if (!userid_list.includes(id)) {
 
         socket.emit('exit_response', id, false, 'User not found');
         return;
@@ -89,13 +89,15 @@ io.on('connection', (socket) => {
 
     socket.on('ask_update_user_list', () => { // envoi de la liste des utilisateurs à la demande
       console.log("User " + socket.id + " requested user list update"); // log
-      socket.emit('update_user_list', user_list_array, user_needed, user_max);
+      socket.emit('update_user_list', user_list, userid_list, user_needed, user_max);
     });
 
 
     socket.on('send_message', (id, message) => { // when a user sends a message, broadcast it to all users
-      console.log("User " + socket.id + " sent message: " + message);
-      io.emit('receive_message', user_list.get(id), message);
+      var name = user_list[user_list.indexOf(id)];
+      console.log("User " + socket.id + "(" + name + ") sent message: " + message);
+      console.log(user_list)
+      io.emit('receive_message', id, name, message);
     });
 
 

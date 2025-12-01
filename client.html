@@ -11,6 +11,13 @@
     <!-- ------------------------------ CSS ------------------------------ -->
 <style>
 
+    .game_box {
+        width: 1080px;
+        height: 720px;
+        background-color: black;
+    }
+
+    /*
     body {
         background-color: darkslategrey;
     }
@@ -53,6 +60,7 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         text-align: center;
     }
+    */
 
 </style>
     <!-- ------------------------------ JAVASCRIPT ------------------------------ -->
@@ -124,15 +132,15 @@
             console.log("Exit failed for " + name); // log
         }
     });
-
     
-    socket.on('update_user_list', (user_list, user_needed, user_max) => {
+
+    socket.on('update_user_list', (user_list, userid_list, user_needed, user_max) => {
 
             document.getElementById("names").innerHTML = ""; // vide la boîte
 
             // on affiche tous les éléments de la hashmap en la parcourant en tant que un tableau
             for (let i = 0; i < user_list.length; i++) {
-                document.getElementById("names").innerHTML += "<li> " + user_list[i] + "</li>";
+                document.getElementById("names").innerHTML += "<li> " + user_list[i] + "#" + userid_list[i] + "</li>";
             }
 
             if (user_list.length >= 1){
@@ -149,7 +157,7 @@
         if(joined){
             document.getElementById("profile_status").innerText = "";
             console.log(my_id + "Sending exit request as " + registered_name); // log
-            socket.emit("exit", registered_name);
+            socket.emit("exit", my_id);
             
             joined = false;
             registered_name = "";
@@ -179,9 +187,9 @@
         }
     }
 
-    socket.on('receive_message', (name, message) =>{
+    socket.on('receive_message', (id, name, message) =>{
         console.log("Received message from " + name + ": " + message); // log
-        document.getElementById("messages").innerHTML += "<li><b>" + name + ":</b> " + message + "</li>";
+        document.getElementById("messages").innerHTML += "<li><b>" + name + "</b><i>" + id + "</i>: " + message + "</li>";
     })
 
     
@@ -214,6 +222,8 @@
     </div>
 
     <div class="game">
+
+        <div class="game_box"></div>
 
         <p id="game_status"></p>
 
