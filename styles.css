@@ -1,0 +1,15 @@
+body {
+    font-family: "MS UI Gothic", sans-serif;
+    display: flex;
+}
+
+.game_box {
+    width: 1080px;
+    height: 720px;
+    background-color: black;
+}
+
+.id {
+    opacity: 0.25;
+    font-size: 0.8em;
+}
